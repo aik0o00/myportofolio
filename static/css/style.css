@@ -196,21 +196,25 @@ h1, .brand {
     font-weight: 400;
     font-size: 1.1rem;
 }
-.deco {
-    position: absolute;
-    left: 8rem;
-    top: 30rem;
-    width: 620px;
+/*
+.resume-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+}
+
+ .deco {
+    width: 100%;
     height: auto;
     display: block;
-    margin-right: auto;
-    object-fit: contain;
-}
+} */
+
 .resume-section {
     /* position: relative;
     top: 200px;
     right: 100px;
     */
+    position: relative;
     width: 45%; /* jarak lebar kotak dr isiannya gitu? */
     margin-left: auto;
     padding-bottom: 10rem;
