@@ -242,7 +242,8 @@ h1, .brand {
 }
 .experience-card {
     padding: 1.25rem;
-    background-color: #fff;
+    background-color: #dfb6b2;
+    color:#2b124c;
     border: 1px solid var(--line);
     border-radius: var(--radius);
 }
@@ -264,6 +265,12 @@ h1, .brand {
     margin-top: 1rem;
     font-size: 0.85rem;
     font-weight: 600;
+}
+.experience-card h2,
+.experience-description,
+.experience-status,
+.experience-category {
+    color: #3b1f5e;
 }
 
 .skill-section {
@@ -292,13 +299,14 @@ h1, .brand {
 
 .skill-card {
     padding: 1.25rem;
-    background-color: #e2b1ff;
+    background-color: #dfb6b2;
+    color:#2b124c;
     border: 1px solid var(--line);
     border-radius: var(--radius);
 }
 
 .skill-level {
-    color: var(--accent-dark);
+    color: #3b1f5e;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
