@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experience - Aiko</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container">
+            <a href="{% url 'main:show_main' %}" class="brand">Aiko</a>
+            <nav>
+                <a href="{% url 'main:show_main' %}">Profile</a>
+                <a href="{% url 'main:show_experience' %}">Experience</a>
+            </nav>
+        </div>
+    </header>
+    
+<main>
+    <section class="skill-section" id="skill">
+        <div class="container">
+            <p class="section-kicker"></p>
+            <h1>Skill</h1>
+
+            <div class="skill-grid">
+                {% for skill in skill_list %}
+                    <article class="skill-card">
+                        <span class="skill-level">
+                            {{ skill.level }}
+                        </span>
+
+                        <h2>{{ skill.name }}</h2>
+
+                        <p class="skill-category">
+                            {{ skill.category }}
+                        </p>
+                    </article>
+                {% empty %}
+                    <p class="empty-state">
+                        Belum ada skill yang ditambahkan.
+                    </p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</main>

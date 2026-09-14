@@ -25,7 +25,7 @@ class Experience(models.Model):
     def is_ongoing(self):
         return self.ended_at is None
 
-class Skills(models.Model):
+class Skill(models.Model):
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
     level = models.CharField(max_length=50)
