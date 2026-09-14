@@ -14,7 +14,7 @@ class Experience(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES,
-default='full-time')
+        default='full-time')
     thumbnail = models.URLField(blank=True, null=True)
     started_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(blank=True, null=True)
@@ -24,5 +24,13 @@ default='full-time')
     @property
     def is_ongoing(self):
         return self.ended_at is None
+
+class Skills(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=100)
+    level = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
 
 # Create your models here.
