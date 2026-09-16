@@ -40,6 +40,9 @@
                         <p class="skill-category">
                             {{ skill.category }}
                         </p>
+
+                        {% include "components/skill_delete_modal.html" %}
+                        
                     </article>
                 {% empty %}
                     <p class="empty-state">

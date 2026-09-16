@@ -9,7 +9,7 @@ Kelas : PBP C
 
 3. Karena website masih berupa static web, data seperti education, experience, dan project masih ditulis langsung di kode. Pada iterasi selanjutnya, saya ingin menambahkan fitur dinamis seperti form untuk menambah atau mengubah data.
 
-Generative AI digunakan untuk tools pembantu saya dalam mengerjakan ini seperti penjelasan HTML dan CSS, memperbaiki kode yang error, dsb. Adapun keterbatasan dalam AI yang saya gunakan
+Generative AI digunakan untuk tools pembantu saya dalam mengerjakan ini seperti penjelasan HTML dan CSS, memperbaiki kode yang error, dsb. Ada keterbatasan dalam AI yang saya gunakan yaitu ketika tools tsb tidak bisa membantu saya dalam tampilan png tersebut
 
 ### Tugas 2
 1. User membuka halaman skill, lalu browser mengirim request ke URL "/skill". Request tersebut pertama kali diproses oleh "portofolio/urls.py", yang meneruskan request ke "main/urls.py". Di dalam "main/urls.py", URL "/skill/"  diarahkan ke view "show_skill".
