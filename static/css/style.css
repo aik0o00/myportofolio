@@ -450,5 +450,10 @@ h1, .brand {
 }
 
 .button-danger {
-    background: #b42318;
+    background: #f5574c;
+}
+
+.skill-description {
+    margin: 0.5rem 0 1rem;
+    line-height: 1.5;
 }

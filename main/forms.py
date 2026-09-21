@@ -11,6 +11,9 @@ class SkillForm(ModelForm):
             "category": "Kategori",
             "level": "Level",
         }
+        
+        fields = ["name", "category", "level", "description"]
+
         widgets = {
             "name": TextInput(attrs={"placeholder": "Problem Solving"}),
             "category": TextInput(attrs={"placeholder": "Soft Skill"}),

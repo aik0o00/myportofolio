@@ -18,6 +18,7 @@
                 <a href="{% url 'main:show_main' %}">Profile</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
                 <a href="{% url 'main:show_skill' %}">Skill</a>
+                <a href="{% url 'main:create_skill' %}">+ Tambah Skill</a>
             </nav>
         </div>
     </header>
@@ -40,6 +41,12 @@
                         <p class="skill-category">
                             {{ skill.category }}
                         </p>
+
+                        {% if skill.description %}
+                            <p class="skill-description">{{ skill.description }}</p>
+                        {% endif %}
+
+                        <a href="{% url 'main:update_skill' skill.id %}" class="button">Update Skill</a>
 
                         {% include "components/skill_delete_modal.html" %}
                         
