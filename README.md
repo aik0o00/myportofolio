@@ -28,3 +28,20 @@ Sedangkan 'migrate" digunakan untuk menerapkan migration tersebut ke database se
 
 Contohnya pada tugas ini, ketika model "Skill" pertama kali ditambahkan dengan field 
 "name", "category", dan "level", kita menjalankan python manage.py makemigrations
+
+### Tugas 3
+1. Seperti di Tutorial 03, ModelForm adalah boilerplate bawaan Django: cukup menulis class Meta berisi model dan fields, lalu field, tipe input, dan validasinya diturunkan dari model. Jika membuat form HTML manual, harus ditulis ulang di HTML dan view serta akan sulit. {% csrf_token %} wajib karena Django menolak request POST tanpa token yang valid. Sesuai penjelasan tutorial, tujuannya mencegah request diubah atau diarahkan ke pihak lain yang berbahaya. Itu juga alasan CSRF_TRUSTED_ORIGINS
+
+2. Keduanya self-descriptive dan sama-sama bisa dibaca manusia, tetapi JSON lebih ringkas karena tidak butuh tag pembuka dan penutup untuk setiap elemen
+
+3. a. Browser mengirim request GET -> urls.py -> get_skills_json
+b. view mengambil semua objek dengan Skill.objects.all() (QuerySet)
+c. serializers.serialize("json", skills) mengubah QuerySet menjadi string JSON
+d. string dikirim kembali lewat HttpResponse(..., content_type="application/json")
+
+Serialization diperlukan karena objek model Django adalah objek Python di memori server, sedangkan HTTP hanya bisa membawa teks atau bytes.
+
+AI DISCLOSURE
+Tools : Claude
+a. Bagian yang dibantu AI: Debugging form update yang bermasalah (jadi terlihat membuat data baru)
+b. Penjelasan alur create vs update (instance=), alur JSON serialize/deserialize
