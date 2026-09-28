@@ -42,14 +42,14 @@ def show_experience(request):
     return render(request, "experience.html", context)
 
 def show_skill(request):
-    json_response = get_skills_json(request) # line 38
+    skills = Skill.objects.all()
 
-    skills = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-
-    skills = [skill.object for skill in skills]
+    for skill in skills:
+        skill.star_count = skill.starred_by.count()
+        skill.user_has_starred = (
+            request.user.is_authenticated
+            and skill.starred_by.filter(pk=request.user.pk).exists()
+        )
 
     context = {
         "skill_list": skills,
@@ -98,7 +98,6 @@ def delete_skill(request, skill_id):
 def update_skill(request, skill_id):
     if not can_edit(request.user):
         raise PermissionDenied
-    skill = get_object_or_404(Skill, pk=skill_id)
     skill = get_object_or_404(Skill, pk=skill_id)
     form = SkillForm(request.POST or None, instance=skill)
 
