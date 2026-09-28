@@ -17,10 +17,17 @@
             <nav>
                 <a href="{% url 'main:show_main' %}">Profile</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
+                <a href="{% url 'main:show_skill' %}">Skill</a>
                 {% if user.is_superuser %}
-                    <a href="{% url 'main:show_skill' %}">Skill</a>
                     <a href="{% url 'main:create_skill' %}">+ Tambah Skill</a>
                 {% endif %}  
+                {% if user.is_authenticated %}
+                    <span class="nav-user">{{ user.username }}</span>
+                    <a href="{% url 'main:logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'main:login' %}">Login</a>
+                    <a href="{% url 'main:register' %}">Register</a>
+                {% endif %}
             </nav>
         </div>
     </header>
@@ -48,7 +55,9 @@
                             <p class="skill-description">{{ skill.description }}</p>
                         {% endif %}
 
-                        <a href="{% url 'main:update_skill' skill.id %}" class="button">Update Skill</a>
+                        {% if can_edit %}
+                            <a href="{% url 'main:update_skill' skill.id %}" class="button">Update Skill</a>
+                        {% endif %}
 
                         {% include "components/skill_star.html" with skill=skill %}
                         {% if user.is_superuser %}

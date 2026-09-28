@@ -12,6 +12,13 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from main.models import Experience, Skill
+def is_editor(user):
+    return user.is_authenticated and user.groups.filter(name="Editor").exists()
+
+def can_edit(user):
+    # pemilik (superuser) atau Editor boleh mengubah data
+    return user.is_superuser or is_editor(user)
+
 def show_main(request):
     last_login = request.COOKIES.get('last_login', 'Belum ada sesi login / Cookie tidak ditemukan')
     context = {
@@ -46,6 +53,7 @@ def show_skill(request):
 
     context = {
         "skill_list": skills,
+        "can_edit": can_edit(request.user),
     }
 
     return render(request, "skill.html", context)
@@ -86,7 +94,11 @@ def delete_skill(request, skill_id):
     
     return redirect("main:show_skill")
 
+@login_required(login_url="/login/")
 def update_skill(request, skill_id):
+    if not can_edit(request.user):
+        raise PermissionDenied
+    skill = get_object_or_404(Skill, pk=skill_id)
     skill = get_object_or_404(Skill, pk=skill_id)
     form = SkillForm(request.POST or None, instance=skill)
 
@@ -153,3 +165,5 @@ def toggle_star(request, skill_id):
             skill.starred_by.add(request.user)
 
     return redirect("main:show_skill")
+
+
