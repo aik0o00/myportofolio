@@ -1,4 +1,5 @@
 import uuid
+from django.contrib.auth.models import User
 from django.db import models
 class Experience(models.Model):
     EXPERIENCE_CHOICES = [
@@ -26,10 +27,12 @@ class Experience(models.Model):
         return self.ended_at is None
 
 class Skill(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
     level = models.CharField(max_length=50)
     description = models.TextField(blank=True)
+    starred_by = models.ManyToManyField(User, related_name="starred_skill", blank=True)
 
     def __str__(self):
         return self.name
