@@ -45,3 +45,8 @@ AI DISCLOSURE
 Tools : Claude
 a. Bagian yang dibantu AI: Debugging form update yang bermasalah (jadi terlihat membuat data baru)
 b. Penjelasan alur create vs update (instance=), alur JSON serialize/deserialize
+
+### Tugas 4
+AI DISCLOSURE
+Tools : ChatGPT, Claude
+Saya menggunakan bantuan generative AI seperti Claude dan ChatGPT untuk membantu saya memahami alur dari tutorial dan menjelaskan step-by-step dari Tugas 4. Selain itu AI membantu saya dalam traceback dan mengatasi ValueError
