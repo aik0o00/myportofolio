@@ -10,6 +10,9 @@ from main.forms import SkillForm
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.http import JsonResponse
+from main.forms import SkillForm
+from django.views.decorators.http import require_POST
 
 from main.models import Experience, Skill
 def is_editor(user):
@@ -42,20 +45,13 @@ def show_experience(request):
     return render(request, "experience.html", context)
 
 def show_skill(request):
-    skills = Skill.objects.all()
-
-    for skill in skills:
-        skill.star_count = skill.starred_by.count()
-        skill.user_has_starred = (
-            request.user.is_authenticated
-            and skill.starred_by.filter(pk=request.user.pk).exists()
-        )
+    name_query = request.GET.get("name", "").strip()
 
     context = {
-        "skill_list": skills,
-        "can_edit": can_edit(request.user),
+        "name": "Aiko",
+        "title_query": name_query,
+        "form": SkillForm(),
     }
-
     return render(request, "skill.html", context)
 
 @login_required(login_url="/login/")  
@@ -74,13 +70,33 @@ def create_skill(request):
     return render(request, "skill_form.html", context)
 
 def get_skills_json(request):
-    skills = Skill.objects.all()
-    skills_json = serializers.serialize("json", skills, use_natural_foreign_keys=True)
+    name_query = request.GET.get("name", "").strip()
+    skills = Skill.objects.prefetch_related('starred_by').all()
 
-    return HttpResponse(
-        skills_json,
-        content_type="application/json"
-    )
+    if name_query:
+        skills = skills.filter(name__icontains=name_query)
+
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for skill in skills:
+        starred_users = skill.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(skill.id),
+            "fields": {
+                "name": skill.name,
+                "description": skill.description,
+                "category": skill.category,
+                "level": skill.level,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+
+    return JsonResponse(data, safe=False)
 
 @login_required(login_url="/login/")
 def delete_skill(request, skill_id):
@@ -165,4 +181,21 @@ def toggle_star(request, skill_id):
 
     return redirect("main:show_skill")
 
+@require_POST
+def create_skill_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            status=403,
+        )
+
+    form = SkillForm(request.POST)
+    if form.is_valid():
+        skill = form.save()
+        return JsonResponse(
+            {"message": "Proyek berhasil ditambahkan.", "pk": str(skill.id)},
+            status=201,
+        )
+
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
