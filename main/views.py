@@ -191,7 +191,7 @@ def toggle_star(request, skill_id):
 def create_skill_ajax(request):
     if not request.user.is_superuser:
         return JsonResponse(
-            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan skill."},
             status=403,
         )
 
@@ -199,7 +199,7 @@ def create_skill_ajax(request):
     if form.is_valid():
         skill = form.save()
         return JsonResponse(
-            {"message": "Proyek berhasil ditambahkan.", "pk": str(skill.id)},
+            {"message": "Skill berhasil ditambahkan.", "pk": str(skill.id)},
             status=201,
         )
 
@@ -289,3 +289,22 @@ def get_experiences_json(request):
         })
 
     return JsonResponse(data, safe=False)
+
+
+@login_required(login_url="/login/")
+def create_experience_ajax(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    if not request.user.is_superuser:
+        return JsonResponse({"error": "Hanya pemilik portofolio yang dapat menambahkan experience."}, status=403)
+
+    form = ExperienceForm(request.POST)
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse({
+            "message": "Experience berhasil ditambahkan!",
+            "pk": str(experience.id),
+        }, status=201)
+
+    return JsonResponse({"errors": form.errors}, status=400)
