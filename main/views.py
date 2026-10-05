@@ -14,6 +14,9 @@ from django.http import JsonResponse
 from main.forms import SkillForm
 from django.views.decorators.http import require_POST
 
+from main.models import Experience
+from main.forms import ExperienceForm
+
 from main.models import Experience, Skill
 def is_editor(user):
     return user.is_authenticated and user.groups.filter(name="Editor").exists()
@@ -38,9 +41,12 @@ def show_main(request):
     return render(request, "index.html", context)
 
 def show_experience(request):
+    title_query = request.GET.get("title", "").strip()
     context = {
         "name": "Aiko",
-        "experience_list": Experience.objects.all(),
+        "title_query": title_query,
+        "can_edit": can_edit(request.user),
+        "form": ExperienceForm(),
     }
     return render(request, "experience.html", context)
 
@@ -49,7 +55,7 @@ def show_skill(request):
 
     context = {
         "name": "Aiko",
-        "title_query": name_query,
+        "name_query": name_query,
         "form": SkillForm(),
     }
     return render(request, "skill.html", context)
@@ -199,3 +205,87 @@ def create_skill_ajax(request):
 
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
 
+@login_required(login_url="/login/")
+def create_experience(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    form = ExperienceForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience baru berhasil ditambahkan!")
+        return redirect("main:show_experience")
+    context = {
+        "name": "Aiko",
+        "form": form,
+    }
+    return render(request, "experience_form.html", context)
+
+
+@login_required(login_url="/login/")
+def update_experience(request, experience_id):
+    if not can_edit(request.user):
+        raise PermissionDenied
+    experience = get_object_or_404(Experience, pk=experience_id)
+    form = ExperienceForm(request.POST or None, instance=experience)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience berhasil diperbarui!")
+        return redirect("main:show_experience")
+    context = {
+        "name": "Aiko",
+        "form": form,
+        "experience": experience,
+    }
+    return render(request, "experience_form.html", context)
+
+
+@login_required(login_url="/login/")
+def delete_experience(request, experience_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    experience = get_object_or_404(Experience, pk=experience_id)
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request, "Experience berhasil dihapus!")
+        return redirect("main:show_experience")
+    return redirect("main:show_experience")
+
+
+@login_required(login_url="/login/")
+def toggle_star_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    if request.method == "POST":
+        if request.user in experience.starred_by.all():
+            experience.starred_by.remove(request.user)
+        else:
+            experience.starred_by.add(request.user)
+    return redirect("main:show_experience")
+
+def get_experiences_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experiences = Experience.objects.prefetch_related('starred_by').all()
+
+    if title_query:
+        experiences = experiences.filter(title__icontains=title_query)
+
+    data = []
+    for experience in experiences:
+        starred_users = experience.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(experience.id),
+            "fields": {
+                "title": experience.title,
+                "description": experience.description,
+                "category": experience.get_category_display(),
+                "thumbnail": experience.thumbnail,
+                "is_ongoing": experience.is_ongoing,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+
+    return JsonResponse(data, safe=False)

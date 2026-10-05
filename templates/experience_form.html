@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experience - Aiko</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<main>
+    <section class="experience-section">
+        <div class="container">
+            <h1>{% if experience %}Update Experience{% else %}Tambah Experience{% endif %}</h1>
+            <form method="post" class="project-form">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <p class="form-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="button">Simpan</button>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import ModelForm, TextInput
+from main.models import Experience
 from django.core.exceptions import ValidationError
 from django.utils.html import strip_tags
 
@@ -54,3 +55,28 @@ class SkillForm(ModelForm):
         return strip_tags(
             self.cleaned_data["description"]
         ).strip()
+
+class ExperienceForm(ModelForm):
+    class Meta:
+        model = Experience
+        fields = ["title", "description", "category", "thumbnail", "ended_at"]
+        widgets = {
+            "ended_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M",
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["ended_at"].input_formats = ["%Y-%m-%dT%H:%M"]
+        self.fields["ended_at"].required = False
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Judul tidak boleh hanya berisi tag HTML.")
+        return title
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
