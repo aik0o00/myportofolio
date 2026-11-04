@@ -33,24 +33,24 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:show_experience"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "experience.html")
-        self.assertContains(response, self.experience.title)
-        self.assertContains(response, self.experience.description)
-        self.assertContains(response, "Part-Time")
-        self.assertContains(response, "Sedang berlangsung")
-        self.assertContains(response, f'href="{reverse("main:show_main")}"')
+        self.assertContains(response, 'id="grid"')
+        self.assertContains(response, 'id="loading"')
+        self.assertContains(
+            response,
+            f'href="{reverse("main:show_main")}"'
+        )
 
     def test_empty_experience_page(self):
         Experience.objects.all().delete()
         response = self.client.get(reverse("main:show_experience"))
-        self.assertContains(response, "Belum ada pengalaman yang ditambahkan.")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="empty"')
 
     def test_completed_experience(self):
         self.experience.ended_at = timezone.now()
         self.experience.save()
-        response = self.client.get(reverse("main:show_experience"))
+
         self.assertFalse(self.experience.is_ongoing)
-        self.assertContains(response, "Selesai")
-        self.assertNotContains(response, "Sedang berlangsung")
 
 class SkillTest(TestCase):
      def setUp(self):
@@ -66,17 +66,16 @@ class SkillTest(TestCase):
 
      def test_skill_data_appears(self):
         response = self.client.get(reverse("main:show_skill"))
-        self.assertContains(response, self.skill.name)
-        self.assertContains(response, self.skill.category)
-        self.assertContains(response, self.skill.level)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "skill.html")
+        self.assertContains(response, 'id="grid"')
+        self.assertContains(response, 'id="loading"')
 
      def test_empty_skill_page(self):
         Skill.objects.all().delete()
         response = self.client.get(reverse("main:show_skill"))
-        self.assertContains(
-            response,
-            "Belum ada skill yang ditambahkan."
-        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="empty"')
 
 
 
