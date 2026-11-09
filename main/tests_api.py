@@ -23,6 +23,14 @@ class SkillAPITest(APITestCase):
             password="test-password",
         )
 
+        self.editor = User.objects.create_user(
+            username="editor",
+            password="test-password",
+        )
+
+        editor_group = Group.objects.create(name="Editor")
+        self.editor.groups.add(editor_group)
+
         self.skill = Skill.objects.create(
             name="Portfolio",
             category="Soft Skill",
@@ -91,33 +99,33 @@ class SkillAPITest(APITestCase):
         )
 
     def test_guest_and_visitor_cannot_write(self):
+        original_count = Skill.objects.count()
+        original_name = self.skill.name
+
         for user in (None, self.visitor):
             self.client.force_authenticate(user=user)
 
-            self.assertEqual(
-                self.client.post(
-                    self.list_url,
-                    self.payload,
-                    format="json",
-                ).status_code,
-                status.HTTP_403_FORBIDDEN,
+            response = self.client.post(
+                self.list_url,
+                self.payload,
+                format="json",
             )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-            self.assertEqual(
-                self.client.patch(
-                    self.detail_url,
-                    {"name": "Changed"},
-                    format="json",
-                ).status_code,
-                status.HTTP_403_FORBIDDEN,
+            response = self.client.patch(
+                self.detail_url,
+                {"name": "Changed"},
+                format="json",
             )
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-            self.assertEqual(
-                self.client.delete(
-                    self.detail_url,
-                ).status_code,
-                status.HTTP_403_FORBIDDEN,
-            )
+            response = self.client.delete(self.detail_url)
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+            self.skill.refresh_from_db()
+            self.assertEqual(self.skill.name, original_name)
+            self.assertEqual(Skill.objects.count(), original_count)
+            self.assertTrue(Skill.objects.filter(pk=self.skill.pk).exists())
 
     def test_owner_can_create(self):
         self.client.force_authenticate(user=self.owner)
@@ -237,20 +245,30 @@ class SkillAPITest(APITestCase):
         )
         self.assertEqual(response.data["star_count"], 0)
         self.assertFalse(response.data["is_starred"])
-        self.assertEqual(response.data["starred_by_names"], "")
+        self.assertNotIn("starred_by_names", response.data)
 
-    def test_staff_and_editor_cannot_manage_skills(self):
-        self.visitor.is_staff = True
-        self.visitor.save()
+    def test_editor_can_patch_but_cannot_create_or_delete(self):
+        self.client.force_authenticate(user=self.editor)
 
-        editor_group = Group.objects.create(name="Editor")
-        self.visitor.groups.add(editor_group)
+        original_count = Skill.objects.count()
+        original_name = self.skill.name
 
-        self.client.force_authenticate(user=self.visitor)
-
+        # Editor boleh PATCH
         response = self.client.patch(
             self.detail_url,
-            {"name": "Changed"},
+            {"name": "Changed by Editor"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.skill.refresh_from_db()
+        self.assertEqual(self.skill.name, "Changed by Editor")
+
+        # Editor tidak boleh POST
+        response = self.client.post(
+            self.list_url,
+            self.payload,
             format="json",
         )
 
@@ -258,6 +276,19 @@ class SkillAPITest(APITestCase):
             response.status_code,
             status.HTTP_403_FORBIDDEN,
         )
+        self.assertEqual(Skill.objects.count(), original_count)
+
+        # Editor tidak boleh DELETE
+        response = self.client.delete(self.detail_url)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
+
+        self.skill.refresh_from_db()
+        self.assertEqual(self.skill.name, "Changed by Editor")
+        self.assertEqual(Skill.objects.count(), original_count)
 
     def test_wrong_method(self):
         self.client.force_authenticate(user=self.owner)

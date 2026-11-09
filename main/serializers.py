@@ -7,8 +7,7 @@ from main.models import Skill
 class SkillSerializer(serializers.ModelSerializer):
     star_count = serializers.SerializerMethodField()
     is_starred = serializers.SerializerMethodField()
-    starred_by_names = serializers.SerializerMethodField()
-
+    
     class Meta:
         model = Skill
         fields = [
@@ -19,7 +18,6 @@ class SkillSerializer(serializers.ModelSerializer):
             "description",
             "star_count",
             "is_starred",
-            "starred_by_names",
         ]
         read_only_fields = ["id"]
 

@@ -57,7 +57,9 @@ def show_skill(request):
         "name": "Aiko",
         "name_query": name_query,
         "form": SkillForm(),
+        "can_edit": can_edit(request.user),
     }
+
     return render(request, "skill.html", context)
 
 @login_required(login_url="/login/")  

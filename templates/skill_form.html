@@ -1,41 +1,110 @@
+
 {% extends "base.html" %}
+
 {% block meta %}
-    <title>Add Skill - {{ name }}</title>
-        {% endblock meta %}
-        {% block content %}
-        <main>
-            <section class="skill-section">
-                <div class="container">
-                    {% if skill %}
-                        <h1>Update Skill</h1>
-                    {% else %}
-                        <h1>Add New Skill</h1>
-                    {% endif %}
-                    <form method="post"
-                            action="{% if skill %}{% url 'main:update_skill' skill.id %}{% else %}{% url 'main:create_skill' %}{% endif %}"
-                            class="skill-form">
-                        {% csrf_token %}
-                        {% for field in form %}
-                        <div class="form-group">
-                            <label for="{{ field.id_for_label }}">{{ field.label }}
-                            </label>
-                            {{ field }}
-                            {% for error in field.errors %}
+    <title>Update Skill - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+<main>
+    <section class="skill-section">
+        <div class="container">
+            <h1>Update Skill</h1>
+
+            <form method="post"
+                  action="{% url 'main:update_skill' skill.id %}"
+                  class="skill-form"
+                  id="update-skill-form">
+
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% for error in field.errors %}
                             <p class="form-error">{{ error }}</p>
-                            {% endfor %}
-                        </div>
                         {% endfor %}
-                        <button type="submit" class="button">
-                        {% if skill %}
-                            Update Skill
-                        {% else %}
-                            Tambah Skill
-                        {% endif %}
-                    </button>
-                            <a href="{% url 'main:show_skill' %}" class="button
-                        button-secondary">Batal</a>
-                    </form>
-                </div>
-            </section>
-        </main>
+                    </div>
+                {% endfor %}
+
+                <p id="form-error" class="form-error" hidden></p>
+                <p id="form-success" hidden></p>
+
+                <button type="submit" class="button" id="submit-button">
+                    Update Skill
+                </button>
+
+                <a href="{% url 'main:show_skill' %}"
+                   class="button button-secondary">Batal</a>
+            </form>
+        </div>
+    </section>
+</main>
+
+<script>
+    const form = document.getElementById("update-skill-form");
+    const submitButton = document.getElementById("submit-button");
+    const errorElement = document.getElementById("form-error");
+    const successElement = document.getElementById("form-success");
+
+    const API_URL = "{% url 'api:skill-detail' skill.id %}";
+
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        errorElement.hidden = true;
+        successElement.hidden = true;
+        submitButton.disabled = true;
+
+        const formData = new FormData(form);
+
+        const payload = {
+            name: formData.get("name"),
+            category: formData.get("category"),
+            level: formData.get("level"),
+            description: formData.get("description"),
+        };
+
+        const csrfToken = form.querySelector(
+            '[name="csrfmiddlewaretoken"]'
+        ).value;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const messages = Object.values(data)
+                    .flat()
+                    .filter(value => typeof value === "string");
+
+                throw new Error(
+                    messages.join(" ") || `HTTP ${response.status}`
+                );
+            }
+
+            successElement.textContent = "Skill berhasil diperbarui!";
+            successElement.hidden = false;
+
+        } catch (error) {
+            errorElement.textContent = error.message;
+            errorElement.hidden = false;
+
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
+</script>
 {% endblock content %}
