@@ -61,3 +61,22 @@ Saya menggunakan bantuan generative AI seperti Claude dan ChatGPT untuk membantu
 AI DISCLOSURE
 Tools : ChatGPT, Claude
 Saya menggunakan bantuan generative AI seperti Claude dan ChatGPT untuk debugging error seperti migrasi model, format tanggal di form, dan masalah fungsi di views.py, menjelaskan pola dari Tutorial 5 yang dari model Project ke model Experience, serta menjelaskan konsep AJAX, debouncing, dan proteksi XSS.
+
+### Tugas 6
+1. REST (Representational State Transfer) merupakan gaya arsitektur untuk membangun layanan web dengan prinsip seperti penggunaan resource, HTTP methods, stateless communication, dan representasi data. JSON hanya merupakan format pertukaran data. Penggunaan JSON saja tidak otomatis menjadikan API RESTful karena API juga perlu memperhatikan prinsip dan pola komunikasi REST.
+
+PUT digunakan untuk memperbarui keseluruhan representasi resource, sedangkan PATCH digunakan untuk memperbarui sebagian field. Contohnya, PUT dapat mengirim seluruh informasi Skill seperti nama, kategori, level, dan deskripsi. Sementara itu, PATCH dapat digunakan hanya untuk mengubah nama Skill tanpa mengirim seluruh field lainnya.
+
+2. Serializer berfungsi untuk mengubah objek model Django menjadi representasi data yang dapat dikirim melalui API, serta memvalidasi dan mengubah input dari request menjadi data yang dapat disimpan ke database. Dengan ModelSerializer, field model dapat dikelola secara lebih terstruktur. Serializer juga menyediakan validasi, penanganan error, dan computed fields. Hal ini mengurangi kebutuhan untuk membuat dictionary dan validasi secara manual seperti ketika menggunakan JsonResponse.
+
+3. Authentication merupakan proses untuk mengetahui identitas user yang mengakses aplikasi. Sementara itu, authorization merupakan proses menentukan tindakan apa saja yang boleh dilakukan oleh user tersebut.
+
+Permission harus diperiksa di server karena pengguna tetap dapat mengakses endpoint secara langsung tanpa melalui tampilan halaman. Menyembunyikan tombol pada template hanya memengaruhi tampilan dan bukan mekanisme keamanan. Oleh karena itu, pembatasan akses harus diterapkan pada endpoint API.
+
+4. CSRF diperlukan karena browser secara otomatis dapat mengirimkan cookie session ketika user mengakses suatu website. Tanpa perlindungan CSRF, website lain dapat mencoba mengirimkan request yang tidak diinginkan menggunakan session user yang sedang login.
+
+Pengujian menggunakan force_authenticate() tidak cukup untuk menguji CSRF karena metode tersebut secara langsung menetapkan pengguna yang terautentikasi dan melewati proses autentikasi session normal. Untuk menguji perlindungan CSRF, digunakan APIClient(enforce_csrf_checks=True) dan .login() sehingga request benar-benar melalui mekanisme session dan pemeriksaan CSRF.
+
+AI DISCLOSURE
+Tools : ChatGPT
+Saya menggunakan bantuan generative AI seperti ChatGPT untuk membantu memahami konsep Django REST Framework, implementasi serializer dan permission, melakukan debugging, serta memeriksa kelengkapan test API.
